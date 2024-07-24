@@ -229,6 +229,58 @@ ggplot() +
 
 
 
+# indicadores -------------------------------------------------------------
+
+# Definir los rangos de edad y de ingreso
+data$RANGO_EDAD <- cut(data$MedianaEdad.x, breaks = c(18, 25, 35, 45), right = FALSE, 
+                       labels = c("[18,25)", "[25,35)", "[35,45)"))
+
+data$RANGO_INGRESO <- cut(data$INGRESO_REAL, breaks = c(450, 800, 1200, 2000, 4000, 35000), 
+                          labels = c("[450-800]", "(800-1200]", "(1200-2000]", "(2000-4000]", "(4000-35000]"))
+
+data$RANGO_INGRESO <- cut(data$INGRESO_EST_G2, breaks = c(450, 800, 1200, 2000, 4000, 35000), 
+                          labels = c("[450-800]", "(800-1200]", "(1200-2000]", "(2000-4000]", "(4000-35000]"))
+
+# Calcular la tabla de contingencia con porcentajes
+tabla_porcentajes <- prop.table(table(data$estadoCivilDescripcion, data$RANGO_INGRESO)) * 100
+tabla_porcentajes
+
+#deFINIR LOS ESTADOS CIVILES
+
+data$
+
+
+
+
+
+
+# Definir los rangos de edad
+
+data[, RANGO_EDAD := cut(MedianaEdad.x, breaks = c(18, 25, 35, 45), 
+                         labels = c("[18-25]", "(25-35]", "(35-45]"))]
+
+# Calcular liquidez para ingresos reales y estimados
+data[, LIQUIDEZ_REAL := INGRESO_REAL / MedianaEdad.x]
+data[, LIQUIDEZ_EST := INGRESO_EST_G1 / MedianaEdad.x]
+
+# Agrupar por rangos de edad y calcular la liquidez media
+liquidez_real <- data[, .(LIQUIDEZ_MEDIA_REAL = mean(LIQUIDEZ_REAL, na.rm = TRUE)), by = RANGO_EDAD]
+liquidez_est <- data[, .(LIQUIDEZ_MEDIA_EST = mean(LIQUIDEZ_EST, na.rm = TRUE)), by = RANGO_EDAD]
+
+# Unir los resultados para comparación
+liquidez_comparacion <- merge(liquidez_real, liquidez_est, by = "RANGO_EDAD")
+
+# Visualización
+library(ggplot2)
+
+ggplot(liquidez_comparacion, aes(x = RANGO_EDAD)) +
+    geom_bar(aes(y = LIQUIDEZ_MEDIA_REAL, fill = "Real"), stat = "identity", position = "dodge") +
+    geom_bar(aes(y = LIQUIDEZ_MEDIA_EST, fill = "Estimado"), stat = "identity", position = "dodge") +
+    labs(title = "Comparación de Liquidez Media por Rango de Edad",
+         x = "Rango de Edad",
+         y = "Liquidez Media") +
+    scale_fill_manual(name = "Tipo de Ingreso", values = c("Real" = "blue", "Estimado" = "red"))
+
 
 # Grid parametros ---------------------------------------------------------
 
